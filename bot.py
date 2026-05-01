@@ -1,10 +1,10 @@
 import requests
 import time
 import os
-from flask import Flask
 import threading
+from flask import Flask
 
-# Criar servidor falso pra Render ficar feliz
+# Servidor falso pro Render
 app = Flask(__name__)
 
 @app.route('/')
@@ -15,11 +15,12 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
-# Iniciar servidor em thread separada
+# Iniciar servidor em thread
 flask_thread = threading.Thread(target=run_flask)
 flask_thread.daemon = True
 flask_thread.start()
 
+# Bot Telegram
 TELEGRAM_TOKEN = "8784683939:AAEMtVDcUqNF97iEmYSb5Efof6i8gYptqnc"
 GROQ_API_KEY = "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"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -32,7 +33,10 @@ system_msg = {"role": "system", "content": "Voce e um especialista brasileiro em
 chats = {}
 
 def send_message(chat_id, text):
-    requests.post(TELEGRAM_URL + "/sendMessage", json={"chat_id": chat_id, "text": text[:4000], "parse_mode": "HTML"})
+    try:
+        requests.post(TELEGRAM_URL + "/sendMessage", json={"chat_id": chat_id, "text": text[:4000], "parse_mode": "HTML"}, timeout=10)
+    except:
+        pass
 
 def get_groq_response(user_id, message):
     if user_id not in chats:
@@ -68,7 +72,7 @@ while True:
                     user_id = update["message"]["from"]["id"]
                     text = update["message"]["text"]
                     if text == "/start":
-                        send_message(chat_id, "🤖 negaolII Bot\n\n⚽ /jogos [time1 vs time2]\n💰 /value - Value bets\n📊 /mercados - Mercados subvalorizados")
+                        send_message(chat_id, "🤖 negaolII Bot online!\n\n⚽ /jogos [time1 vs time2]\n💰 /value - Value bets\n📊 /mercados - Mercados subvalorizados")
                     elif text.startswith("/jogos"):
                         jogo = text[6:].strip()
                         prompt = "ANALISE DE VALOR para " + jogo + ": odds erradas, handicap asiatico, escanteios." if jogo else "Jogos de hoje com valor."
