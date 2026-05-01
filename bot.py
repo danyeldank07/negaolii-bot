@@ -1,5 +1,24 @@
 import requests
 import time
+import os
+from flask import Flask
+import threading
+
+# Criar servidor falso pra Render ficar feliz
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "negaolii bot online!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
+
+# Iniciar servidor em thread separada
+flask_thread = threading.Thread(target=run_flask)
+flask_thread.daemon = True
+flask_thread.start()
 
 TELEGRAM_TOKEN = "8784683939:AAEMtVDcUqNF97iEmYSb5Efof6i8gYptqnc"
 GROQ_API_KEY = "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"
